@@ -8,13 +8,13 @@ var subMenu1 = new Menu("sub menu 1", menuItems:new List<MenuItem>()
 {
     new MenuItem()
     {
-        Shortcut = "i",
-        MenuLabel = "Item 1",
+        DisplayLevel = 1,
+        MenuLabel = "Item 1 sub",
     },
     new MenuItem()
     {
-        Shortcut = "a",
-        MenuLabel = "Item 2",
+        DisplayLevel = 1,
+        MenuLabel = "Item 2 sub",
     },
 });
 
@@ -22,14 +22,15 @@ var mainMenu = new Menu("Main menu", menuItems:new List<MenuItem>()
 {
     new MenuItem()
     {
-        Shortcut = "i",
+        DisplayLevel = 0,
         MenuLabel = "Item 1",
         MethodToRun = subMenu1.Run
     },
     new MenuItem()
     {
-        Shortcut = "a",
+        DisplayLevel = 0,
         MenuLabel = "Item 2",
+        //MethodToRun = subMenu1.Run
     },
 });
 

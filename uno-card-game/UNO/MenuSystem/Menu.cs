@@ -4,27 +4,20 @@ public class Menu
 {
     public string? Title { get; set; }
     //public List<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
-    public Dictionary<string, MenuItem> MenuItems { get; set; } = new Dictionary<string, MenuItem>();
+    public Dictionary<int, MenuItem> MenuItems { get; set; } = new Dictionary<int, MenuItem>();
     public int Option = 0;
+    private int Level = 0;
 
     private const string MenuSeparator = "======================";
-    private static readonly string[] ReservedShortcuts = new string[] { "x", "b" };
 
     public Menu(string? title, List<MenuItem> menuItems)
     {
+        var counter = 0;
         Title = title;
         foreach (var menuItem in menuItems)
         {
-            if (ReservedShortcuts.Contains(menuItem.Shortcut.ToLower()))
-            {
-                throw new ApplicationException($"This shortcut '{menuItem.Shortcut.ToLower()}' is not allowed");
-            }
-
-            if (MenuItems.ContainsKey(menuItem.Shortcut.ToLower()))
-            {
-                throw new ApplicationException($"This shortcut '{menuItem.Shortcut.ToLower()}' is already in the menu");
-            }
-            MenuItems[menuItem.Shortcut.ToLower()] = menuItem;
+            counter++;
+            MenuItems[counter] = menuItem;
         }
     }
 
@@ -35,7 +28,7 @@ public class Menu
         { 
             color = " \u001b[32m";
         }
-        Console.WriteLine(color + item.Shortcut + ") " + item.MenuLabel + "\u001b[0m");
+        Console.WriteLine(color + item.MenuLabel + "\u001b[0m");
     }
 
     private void Draw()
@@ -44,6 +37,8 @@ public class Menu
         {
             Console.WriteLine(Title);
             Console.WriteLine(MenuSeparator);
+            Console.WriteLine("Navigate the menu using arrow keys. Make your choice with Enter key.");
+            Console.WriteLine();
         } 
 
         foreach (var menuItem in MenuItems)
@@ -52,20 +47,16 @@ public class Menu
             ItemWrite(menuItem.Value);
             //Console.WriteLine(menuItem.Value.Shortcut);
         }
-        
-        Console.WriteLine("b) Back");
-        Console.WriteLine("x) Exit");
-        
-        Console.WriteLine(MenuSeparator);
-        Console.Write($"Your Choice:");
+        ItemWrite(Level > 0 ? new MenuItem() { MenuLabel = "Back"} : new MenuItem() { MenuLabel = "Exit"});
+    
     }
 
     public string? Run()
     {
+        var Exit = false;
         Console.Clear();
         ConsoleKeyInfo key;
         
-        var userChoice = " ";
         do
         {
             Console.Clear();
@@ -76,24 +67,23 @@ public class Menu
             switch (key.Key)
             {
                 case ConsoleKey.DownArrow:
-                    Option = (Option + 1) % MenuItems.Count;
+                    Option = (Option + 1) % (MenuItems.Count + 1);
                     break;
                 
                 case ConsoleKey.UpArrow:
-                    Option = (Option - 1 + MenuItems.Count) % MenuItems.Count;
+                    Option = (Option - 1 + MenuItems.Count) % (MenuItems.Count + 1);
                     break;
                 
                 case ConsoleKey.Enter:
-                    userChoice = Console.ReadLine()?.Trim();
-                    var selectedShortcut = MenuItems.ElementAt(Option).Key;
-                    if (MenuItems.ContainsKey(selectedShortcut))
+                    if (MenuItems.ContainsKey(Option))
+                        Console.Write(MenuItems);
                     {
-                        if (MenuItems[selectedShortcut].MethodToRun != null)
+                        if (MenuItems[Option].MethodToRun != null)
                         {
-                            var result = MenuItems[selectedShortcut].MethodToRun!();
-                            if (result?.ToLower() == "x")
+                            var result = MenuItems[Option].MethodToRun!();
+                            if (MenuItems[Option].MenuLabel == "Exit")
                             {
-                                userChoice = "x";
+                                Exit = true;
                             }
                         }
                     }
@@ -102,9 +92,9 @@ public class Menu
             
             Console.WriteLine();
             
-        } while (!ReservedShortcuts.Contains(userChoice));
+        } while (!Exit);
 
-        return userChoice;
+        return "userChoice";
 
     }
    }
