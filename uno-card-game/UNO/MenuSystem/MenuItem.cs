@@ -9,4 +9,6 @@ public class MenuItem
     
 
     public Func<string?>? MethodToRun { get; set; } = null;
+    
+   // public Func<bool?>? CloseMenu { get; set; } = null;
 }

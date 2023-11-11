@@ -2,17 +2,28 @@
 
 using MenuSystem;
 
-Console.WriteLine("Hello, World!");
 
-var subMenu1 = new Menu("sub menu 1",EMenuLevel.Second, menuItems:new List<MenuItem>()
+var newGameMenu = new Menu("New Game",EMenuLevel.Second, menuItems:new List<MenuItem>()
 {
     new MenuItem()
     {
-        MenuLabel = "Item 1 sub",
+        MenuLabel = "Item 1 new game",
     },
     new MenuItem()
     {
-        MenuLabel = "Item 2 sub",
+        MenuLabel = "Item 2 new game",
+    },
+});
+
+var loadGameMenu = new Menu("Load Game",EMenuLevel.Second, menuItems:new List<MenuItem>()
+{
+    new MenuItem()
+    {
+        MenuLabel = "Item 1 load",
+    },
+    new MenuItem()
+    {
+        MenuLabel = "Item 2 load",
     },
 });
 
@@ -20,13 +31,13 @@ var mainMenu = new Menu("Main menu",EMenuLevel.First, menuItems:new List<MenuIte
 {
     new MenuItem()
     {
-        MenuLabel = "Item 1",
-        MethodToRun = subMenu1.Run
+        MenuLabel = "New Game",
+        MethodToRun = newGameMenu.Run
     },
     new MenuItem()
     {
-        MenuLabel = "Item 2",
-        //MethodToRun = subMenu1.Run
+        MenuLabel = "Load game",
+        MethodToRun = loadGameMenu.Run
     },
 });
 
