@@ -1,9 +1,14 @@
-﻿namespace MenuSystem;
+﻿using System.Security.Cryptography;
+
+namespace MenuSystem;
 
 public class MenuItem
 {
     public string MenuLabel { get; set; } = default!;
+
+    public Func<string>? MenuLabelFunction { get; set; }
     //public int DisplayLevel { get; set; } = default!;
+    
 
     public bool IsSelected { get; set; } = false;
     

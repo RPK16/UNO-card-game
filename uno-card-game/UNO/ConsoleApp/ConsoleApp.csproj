@@ -9,6 +9,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\MenuSystem\MenuSystem.csproj" />
+      <ProjectReference Include="..\UnoConsoleUI\UnoConsoleUI.csproj" />
       <ProjectReference Include="..\UnoEngine\UnoEngine.csproj" />
     </ItemGroup>
 

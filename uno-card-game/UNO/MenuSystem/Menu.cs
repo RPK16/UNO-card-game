@@ -45,9 +45,9 @@ public class Menu
         }
         return true;
     }
-    
 
-    public void ItemWrite(MenuItem item)
+
+    private static void ItemWrite(MenuItem item)
     {
         var color = "";
         if (item.IsSelected)
@@ -55,7 +55,14 @@ public class Menu
             color = " \u001b[32m";
         }
 
-        Console.WriteLine(color + item.MenuLabel + "\u001b[0m");
+        if (item.MenuLabelFunction != null)
+        {
+            Console.WriteLine(color + item.MenuLabelFunction() + "\u001b[0m");
+        }
+        else
+        {
+            Console.WriteLine(color + item.MenuLabel + "\u001b[0m");
+        }
     }
 
     private void Draw()
@@ -74,6 +81,7 @@ public class Menu
             menuItem.Value.IsSelected = MenuItems.ElementAt(Option).Key == menuItem.Key;
             //Console.Write(menuItem.Key);
             ItemWrite(menuItem.Value);
+           
         }
 
     }
