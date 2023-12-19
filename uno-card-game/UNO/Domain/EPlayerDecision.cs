@@ -4,6 +4,8 @@ public enum EPlayerDecision
 {
     NoneYet,
     Play,
-    Pick,
+    Draw,
+    ShoutUNO,
+    EndTurn,
     // Surrender,
 }

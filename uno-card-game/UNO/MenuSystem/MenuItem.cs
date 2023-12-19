@@ -12,7 +12,6 @@ public class MenuItem
 
     public bool IsSelected { get; set; } = false;
     
-
     public Func<string?>? MethodToRun { get; set; } = null;
     
     public Func<string?>? MenuToRun { get; set; } = null;

@@ -24,7 +24,8 @@ var newGameMenu = new Menu("New Game",EMenuLevel.Second, menuItems:new List<Menu
     },
     new MenuItem()
     {
-        MenuLabel = "Item 2 new game",
+        MenuLabel = "Start game",
+        MethodToRun = gameController.MainLoop,
     },
 });
 

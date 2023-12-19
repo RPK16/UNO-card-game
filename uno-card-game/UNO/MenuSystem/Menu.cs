@@ -24,6 +24,9 @@ public class Menu
 
         switch (menuLevel)
         {
+            case EMenuLevel.Turn:
+                MenuItems[counter] = new MenuItem() { MenuLabel = "Back" };
+                break;
             case EMenuLevel.First:
                 MenuItems[counter] = new MenuItem() { MenuLabel = "Exit" };
                 break;
@@ -81,7 +84,6 @@ public class Menu
             menuItem.Value.IsSelected = MenuItems.ElementAt(Option).Key == menuItem.Key;
             //Console.Write(menuItem.Key);
             ItemWrite(menuItem.Value);
-           
         }
 
     }
@@ -91,6 +93,7 @@ public class Menu
         MenuItem? userChoice = null;
         Console.Clear();
         ConsoleKeyInfo key;
+        String[] PlayActions = { "Play a card", "Draw a card" };
 
         do
         {
@@ -132,6 +135,11 @@ public class Menu
                     } else if (userChoice?.MenuLabel == "Exit")
                     {
                         Environment.Exit(0);
+                    } else if (PlayActions.Contains(userChoice?.MenuLabel))
+                    {
+                        closeMenu = Back();
+                        Console.Clear();
+                        
                     }
 
                     if (userChoice?.MethodToRun != null)
@@ -147,6 +155,7 @@ public class Menu
 
             Console.WriteLine();
         } while (!closeMenu);
+        
 
         return userChoice?.MenuLabel;
     }

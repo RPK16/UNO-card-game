@@ -4,5 +4,6 @@ public enum EMenuLevel
 {
  First,
  Second,
- Other
+ Other,
+ Turn
 }
