@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Text;
 using DAL;
 using Domain;
 using UnoEngine;
@@ -9,6 +10,7 @@ using UnoConsoleUI;
 var gameRepository = new GameRepositoryFileSystem();
 var game = new UnoGameEngine<string>(gameRepository);
 var gameController = new GameController<string>(game);
+Console.OutputEncoding = Encoding.UTF8;
 
 
 

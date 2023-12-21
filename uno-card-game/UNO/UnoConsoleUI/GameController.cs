@@ -33,17 +33,25 @@ public class GameController<TKey>
                 Player currentPlayer = _gameEngine.State.Players[_gameEngine.State.ActivePlayerNr];
                 if (_gameEngine.State.PlayerDecision == EPlayerDecision.NoneYet)
                 {
-                    Console.Write($"Player {_gameEngine.State.ActivePlayerNr + 1} please choose an action.");
-                    _gameEngine.State.TurnMenuDraw.Run();
+                    Console.Write($"{currentPlayer} please choose an action.");
+                    
+                    var turnmenu = new Menu("Your cards", EMenuLevel.Turn, _gameEngine.TurnChoices());
+                    turnmenu.Header = _gameEngine.CreateHeader(currentPlayer);
+                    turnmenu.Run();
+                    
                     if (_gameEngine.State.PlayerDecision == EPlayerDecision.Play)
                     {
-                        Console.Write($"Player {_gameEngine.State.ActivePlayerNr + 1} please choose a card to play");
-                        _gameEngine.ShowPlayerHand(currentPlayer);
-                        var card = Console.ReadLine();
+                        Console.Write($"{currentPlayer} please choose a card to play");
+                        
+                        var playmenu = new Menu("Your cards", EMenuLevel.Play, _gameEngine.CardChoices());
+                        playmenu.Header = _gameEngine.CreateHeader(currentPlayer);
+                        _gameEngine.PlayACard(currentPlayer, playmenu.Run());
+                       
+                        _gameEngine.State.PlayerDecision = EPlayerDecision.NoneYet;
                     } 
                     else if (_gameEngine.State.PlayerDecision == EPlayerDecision.Draw)
                     {
-                        Console.Write($"Player {_gameEngine.State.ActivePlayerNr + 1} drew a card");
+                        Console.Write($"{currentPlayer} drew a card");
                         _gameEngine.DrawACard(currentPlayer);
                         //Console.WriteLine(currentPlayer.PlayerHand[0]);
                         _gameEngine.ShowPlayerHand(currentPlayer);

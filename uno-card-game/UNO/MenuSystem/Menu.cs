@@ -7,6 +7,7 @@ public class Menu
     //public List<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
     public Dictionary<int, MenuItem> MenuItems { get; set; } = new Dictionary<int, MenuItem>();
     public int Option;
+    public string? Header = null;
 
     private const string MenuSeparator = "======================";
 
@@ -24,7 +25,7 @@ public class Menu
 
         switch (menuLevel)
         {
-            case EMenuLevel.Turn:
+            case EMenuLevel.Play:
                 MenuItems[counter] = new MenuItem() { MenuLabel = "Back" };
                 break;
             case EMenuLevel.First:
@@ -70,6 +71,11 @@ public class Menu
 
     private void Draw()
     {
+        if (Header != null)
+        {
+            Console.WriteLine(Header); 
+        }
+        
         if (!string.IsNullOrWhiteSpace(Title))
         {
             Console.WriteLine(Title);
@@ -142,13 +148,20 @@ public class Menu
                         
                     }
 
+                    if (userChoice?.ItemNr != null)
+                    {
+                        Console.WriteLine(userChoice.MenuLabel);
+                        Thread.Sleep(2000);
+                        closeMenu = Back();
+                        return userChoice.ItemNr;
+                    }
+
                     if (userChoice?.MethodToRun != null)
                     {
                         userChoice.MethodToRun!();
                     }
-                    
-                    
-                    
+                    Console.WriteLine(userChoice?.MenuLabel);
+                    Thread.Sleep(2000);
 
                     break;
             }

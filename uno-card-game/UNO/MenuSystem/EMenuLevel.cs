@@ -5,5 +5,6 @@ public enum EMenuLevel
  First,
  Second,
  Other,
- Turn
+ Turn,
+ Play,
 }
