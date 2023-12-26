@@ -17,5 +17,5 @@ public enum ECardValue
     Draw2,
     Change,
     Draw4,
-   // Blank,
+    Blank,
 }

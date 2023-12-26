@@ -9,6 +9,7 @@ public class GameState
     public List<GameCard> DeckOfPlayedCards { get; set; } = new List<GameCard>();
     public List<Player> Players { get; set; } = new List<Player>();
     public ETurnState TurnState { get; set; } = ETurnState.Ongoing;
+    public int ToDraw { get; set; } = 0;
 
     public EPlayerDecision PlayerDecision { get; set; } = EPlayerDecision.NoneYet;
 

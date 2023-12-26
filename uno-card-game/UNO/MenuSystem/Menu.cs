@@ -80,7 +80,7 @@ public class Menu
         {
             Console.WriteLine(Title);
             Console.WriteLine(MenuSeparator);
-            Console.WriteLine("Navigate the menu using arrow keys. Make your choice with Enter key.");
+            Console.WriteLine("Navigate using arrow keys. Make your choice with Enter key.");
             Console.WriteLine();
         }
 
@@ -99,7 +99,7 @@ public class Menu
         MenuItem? userChoice = null;
         Console.Clear();
         ConsoleKeyInfo key;
-        String[] PlayActions = { "Play a card", "Draw a card" };
+        String[] PlayActions = { "Play card(s)", "Draw card(s)", "End turn", "Shout UNO"};
 
         do
         {
@@ -150,8 +150,6 @@ public class Menu
 
                     if (userChoice?.ItemNr != null)
                     {
-                        Console.WriteLine(userChoice.MenuLabel);
-                        Thread.Sleep(2000);
                         closeMenu = Back();
                         return userChoice.ItemNr;
                     }
@@ -160,9 +158,7 @@ public class Menu
                     {
                         userChoice.MethodToRun!();
                     }
-                    Console.WriteLine(userChoice?.MenuLabel);
-                    Thread.Sleep(2000);
-
+                  
                     break;
             }
 
