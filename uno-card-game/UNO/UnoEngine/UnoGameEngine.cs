@@ -28,6 +28,7 @@ public class UnoGameEngine<TKey>
         DealCards();
         GameRepository = repository;
         
+        
         //PlayMenu = new Menu("Choose a card to play", EMenuLevel.Play, CardChoices());
         //TurnMenu = new Menu("Choose action", EMenuLevel.Turn, TurnChoices());
         ColorMenu = new Menu("Choose color", EMenuLevel.Turn, ChangeColor());
