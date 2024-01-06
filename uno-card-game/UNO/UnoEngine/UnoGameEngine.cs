@@ -1,69 +1,24 @@
-﻿using System.Diagnostics;
-using System.Reflection.Emit;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text.Json;
-using DAL;
-using Domain;
+﻿using Domain;
 using MenuSystem;
 
 namespace UnoEngine;
 
-public class UnoGameEngine<TKey>
+public class UnoGameEngine
 {
-    public IGameRepository<TKey> GameRepository { get; set; }
     public GameState State { get; set; } = new GameState();
+    public readonly GameOptions GameOptions;
     private Random Rnd { get; set; } = new Random();
-    
-    public Menu? PlayMenu;
-    public Menu? TurnMenu;
-    public Menu? ColorMenu;
-    
+
+    private readonly Menu? _colorMenu  = new Menu("Choose color", EMenuLevel.Turn, ChangeColor());
+
     private const int InitialHandSize = 7;
-    //public GameCard? StartCard { get; set; }
 
-    public UnoGameEngine(IGameRepository<TKey> repository)
+    public UnoGameEngine(GameOptions gameOptions)
     {
-        InitializePlayers();
-        InitializeFullDeck();
-        DealCards();
-        GameRepository = repository;
-        
-        
-        //PlayMenu = new Menu("Choose a card to play", EMenuLevel.Play, CardChoices());
-        //TurnMenu = new Menu("Choose action", EMenuLevel.Turn, TurnChoices());
-        ColorMenu = new Menu("Choose color", EMenuLevel.Turn, ChangeColor());
-    }
-
-    public void NextMove()
-    {
-        
-    }
-
-   
-    public void SaveGame()
-    {
-        GameRepository.SaveGame(null, State);
+        GameOptions = gameOptions;
     }
     
-    public void InitializePlayers()
-    {
-        State.Players = new List<Player>()
-        {
-            new Player()
-            {
-                Nickname = "Human1",
-                PlayerType = EPlayerType.Human
-            },
-            new Player()
-            {
-                Nickname = "Ai1",
-                PlayerType = EPlayerType.Ai
-            },
-    
-        };
-    }
-    
-    private void InitializeFullDeck()
+    public void InitializeFullDeck()
     {
         for (int cardColor = 0; cardColor <= (int) ECardColor.Green; cardColor++)
         {
@@ -132,7 +87,7 @@ public class UnoGameEngine<TKey>
         return randomDeck;
     }
 
-    private void DealCards()
+    public void DealCards()
     {
         foreach (var player in State.Players)
         {
@@ -154,108 +109,179 @@ public class UnoGameEngine<TKey>
 
     public bool IsGameOver()
     {
-        return false;
+        if (State.Players.Count > 10 || State.Players.Count < 2)
+        {
+            return true;
+        }
+        return State.Winner != null;
     }
 
-    public bool IsItNewMove()
+    public void AiTurn(Player player)
     {
-        //if (State.ActivePlayerNr != State)
-        //{
-            return true;
-       // }
-       // return false;
+        var turnchoices = new List<EPlayerDecision>();
+        
+        if (player.CanDraw)
+        {
+            turnchoices.Add(EPlayerDecision.Draw);
+        }
+
+        if (player.CanEnd)
+        {
+            turnchoices.Add(EPlayerDecision.EndTurn); 
+        }
+
+        if (AiCard(player) != null && player.CanPlay)
+        {
+            Decide(EPlayerDecision.Play);
+        }
+        else
+        {
+            Decide(turnchoices[(Rnd.Next(turnchoices.Count))]);
+        }
     }
-    //
-    public string DrawACard(Player player)
+
+    public string? AiCard(Player player)
     {
+        var tableCard = State.DeckOfPlayedCards.Last();
+        var tempDeck = new List<GameCard>();
+        
+        while (tempDeck.Count != player.PlayerHand.Count)
+        {
+            var randomPositionInDeck = Rnd.Next(player.PlayerHand.Count);
+            tempDeck.Add(player.PlayerHand[randomPositionInDeck]);
+        }
+
+        foreach (var card in tempDeck)
+        {
+            if (card.CardColor == tableCard.CardColor || card.CardValue == tableCard.CardValue || card.CardColor == ECardColor.Black)
+            {
+                return player.PlayerHand.IndexOf(card).ToString();
+            }
+        }
+        return null;
+    }
+    
+    public string DrawACard(Player player, int amount = 1)
+    { 
         if (State.DeckOfCards.Count != 0)
         {
-            int count = 0;
-            
-            for (int cards = 0; cards <= player.DrawDebt; cards++)
+            for (int cards = 1; cards <= amount; cards++)
             {
-                count++;
                 GameCard drawnCard = State.DeckOfCards.Last();
                 player.PlayerHand.Add(drawnCard);
                 State.DeckOfCards.Remove(drawnCard);
             }
+
+            if (amount == 1)
+            {
+                player.CanEnd = true;
+            }
             
-            Console.WriteLine($"{player.Nickname} drew {count} card(s)");
-            Thread.Sleep(2000);
+            Console.WriteLine($"{player.NickName} drew {amount} card(s)");
+            Thread.Sleep(GameOptions.GameSpeed);
+            State.ToDraw = 0;
         }
         else
         {
             Console.WriteLine("Couldn't draw a card.");
-            Thread.Sleep(2000);   
+            Thread.Sleep(GameOptions.GameSpeed); 
         }
         return "";
+    }
+
+    public string Uno(Player player)
+    {
+        if (player.PlayerHand.Count == 1)
+        {
+            player.Uno = true;
+            Console.WriteLine($"{player.NickName} shouted UNO!");
+        }
+        else
+        {
+            Console.WriteLine($"Cannot shout UNO, {player.NickName} has more than one card left.");
+        }
+        Thread.Sleep(GameOptions.GameSpeed); 
+        return "";
+    }
+
+    private Player GetNextPlayer()
+    {
+        Player nextplayer;
+        
+        if (!State.Reversed)
+        {
+            if (State.ActivePlayerNr < State.Players.Count - 1)
+            {
+                State.ActivePlayerNr++;
+                nextplayer = State.Players[State.ActivePlayerNr];
+            }
+            else
+            {
+                nextplayer = State.Players[0];
+                State.ActivePlayerNr = 0;
+            }
+        }
+        else
+        {
+            if (State.ActivePlayerNr > 0)
+            {
+                State.ActivePlayerNr--;
+                nextplayer = State.Players[State.ActivePlayerNr];
+            }
+            else
+            {
+                nextplayer = State.Players.Last();
+                State.ActivePlayerNr = State.Players.Count - 1;
+            }
+        }
+        return nextplayer;
     }
     
     public string Endturn()
     {
-        
-        var nextplayer = State.Players[0];
-        
-        if (State.ActivePlayerNr < State.Players.Count - 1)
+        var currentplayer = State.Players[State.ActivePlayerNr];
+        if (!currentplayer.CanEnd)
         {
-            State.ActivePlayerNr++;
-            nextplayer = State.Players[State.ActivePlayerNr - 1];
+            Console.WriteLine("You cannot end a turn before playing or drawing a card.");
+            Thread.Sleep(GameOptions.GameSpeed); 
+            return "";
         }
-        else
-        {
-            nextplayer = State.Players[0];
-            State.ActivePlayerNr = 0;
-        }
-
+        var nextplayer = GetNextPlayer();
+        
+        nextplayer.DrawDebt += State.ToDraw;
+        nextplayer.IsSkipped = State.SkipNext;
+        
         if (nextplayer.IsSkipped)
         {
-            Console.WriteLine(nextplayer.Nickname + "'s turn was skipped.");
-            Thread.Sleep(1000);
-            State.ActivePlayerNr++;
-            
+            nextplayer.IsSkipped = false;
+            Console.WriteLine(nextplayer.NickName + "'s turn was skipped.");
+            Thread.Sleep(GameOptions.GameSpeed); 
+            nextplayer = GetNextPlayer();
         }
         
-        Console.WriteLine(State.Players[State.ActivePlayerNr].Nickname + "'s turn.");
-        Thread.Sleep(1000);
+        Reset(currentplayer);
+        State.PreviousPlayer = currentplayer;
+        
+        Console.WriteLine(nextplayer.NickName + "'s turn.");
+        Thread.Sleep(GameOptions.GameSpeed);
+        if (nextplayer.PlayerType == EPlayerType.Ai) return "";
+        Console.Write("Make sure you are alone looking at screen! Press enter to continue...");
+        Console.ReadLine();
+        Console.Clear();
 
         return "";
-        
     }
 
-    public string ShowPlayerHand(Player player)
+    private void Reset(Player player)
     {
-        string hand = player.Nickname + "'s cards: ";
-        foreach (var card in player.PlayerHand)
-        {
-            hand += card;
-            if (!card.Equals(player.PlayerHand.Last()))
-            {
-                hand += ", ";
-            }
-        }
-
-        return hand;
+        player.CanPlay = true;
+        player.CanDraw = true;
+        player.CanEnd = false;
+        player.DrawDebt = 0;
+        State.ToDraw = 0;
+        State.SkipNext = false;
     }
-
-    public string CreateHeader(Player player)
-    {
-        string header =  "Card on the table: " + State.DeckOfPlayedCards.Last().ToString() + System.Environment.NewLine;
-        //header += State.Players[State.ActivePlayerNr].Nickname + "'s turn. " + System.Environment.NewLine;
-        header += ShowPlayerHand(player);
-        
-        return header;
-    }
-
-
-    // public void ChooseAction()
-    // {
-    //     var newGameMenu = new Menu("New Game", EMenuLevel.Second, menuItems: new List<MenuItem>());
-    // }
-    private string ReturnNumber(int number)
-    {
-        return number.ToString();
-    }
-
+    
     public List<MenuItem> CardChoices()
     {
         var player = State.Players[State.ActivePlayerNr];
@@ -274,7 +300,7 @@ public class UnoGameEngine<TKey>
         return cardChoices;
     }
 
-    public List<MenuItem> ChangeColor()
+    private static List<MenuItem> ChangeColor()
     {
         var colorChoices = new List<MenuItem>();
 
@@ -290,9 +316,51 @@ public class UnoGameEngine<TKey>
         
         return colorChoices;
     }
-
-    public List<MenuItem> TurnChoices()
+    
+    public List<MenuItem> CatchChoices()
     {
+        var playersToCatch = new List<MenuItem>();
+
+        for (var playerindex = 0; playerindex <= State.Players.Count - 1; playerindex++)
+        {
+            if (playerindex == State.ActivePlayerNr) continue;
+            var player = State.Players[playerindex];
+            playersToCatch.Add(new MenuItem
+            {
+                MenuLabel = player.NickName,
+                ItemNr = playerindex.ToString(),
+            });
+        }
+        return playersToCatch;
+    }
+
+    public void CatchPlayer(Player player, string? playernrstring)
+    {
+        if (playernrstring == "Back")
+        {
+            return;
+        }
+        if (playernrstring != null)
+        {
+            var nr = int.Parse(playernrstring);
+            var playertocatch = State.Players[nr];
+
+            if (playertocatch.PlayerHand.Count == 1 && !playertocatch.Uno)
+            {
+                Console.WriteLine($"{playertocatch.NickName} was caught not shouting UNO with 1 card left.");
+                playertocatch.DrawDebt = 4;
+            }
+            else
+            {
+                Console.WriteLine($"{playertocatch.NickName} cannot be caught.");
+            }
+        }
+        Thread.Sleep(GameOptions.GameSpeed); 
+    }
+
+
+    public List<MenuItem> TurnChoices() 
+        {
         var player = State.Players[State.ActivePlayerNr];
         var turnchoices = new List<MenuItem>();
             
@@ -317,10 +385,16 @@ public class UnoGameEngine<TKey>
         }
         
         turnchoices.Add( new MenuItem()
-            {
-                MenuLabel = "Shout UNO",
-                MethodToRun = () => Decide(EPlayerDecision.ShoutUNO),
-            });
+        {
+            MenuLabel = "Shout UNO",
+            MethodToRun = () => Decide(EPlayerDecision.ShoutUno),
+        });
+        
+        turnchoices.Add(new MenuItem() 
+        {
+            MenuLabel = "Catch",
+            MethodToRun = () => Decide(EPlayerDecision.Catch),
+        });
         
         turnchoices.Add(new MenuItem()
         {
@@ -328,21 +402,32 @@ public class UnoGameEngine<TKey>
             MethodToRun = () => Decide(EPlayerDecision.EndTurn),
         });
         
+        turnchoices.Add(new MenuItem()
+        {
+            MenuLabel = "Exit game",
+            MethodToRun = () => Decide(EPlayerDecision.Exit),
+        });
         return turnchoices;
     }
-    
+
     private string Decide(EPlayerDecision decision)
     {
         State.PlayerDecision = decision;
         return "";
     }
     
-    public string PlayACard(Player player, string? cardnrstring)
+    public void PlayACard(Player player, string? cardnrstring)
     {
+        var tablecard = State.DeckOfPlayedCards.Last();
+        
+        if (State.TempCard != null)
+        {
+            State.DeckOfPlayedCards.Remove(State.TempCard);
+        }
         
         if (cardnrstring == "Back")
         {
-            return "";
+            return;
         }
         if (cardnrstring != null)
         {
@@ -358,48 +443,92 @@ public class UnoGameEngine<TKey>
                     {
                         State.ToDraw += 4;
                     }
-                    var colorstring = ColorMenu?.Run();
-                    var color = int.Parse(colorstring);
+
+                    var color = Rnd.Next(0, 4);
+                    if (player.PlayerType != EPlayerType.Ai)
+                    {
+                        var colorstring = _colorMenu?.Run();
+                         color = int.Parse(colorstring);
+                    }
                     
-                    State.DeckOfPlayedCards.Add(new GameCard()
+                    State.DeckOfPlayedCards.Add(card);
+                    player.PlayerHand.Remove(card);
+                    
+                    State.TempCard = new GameCard()
                     {
                         CardColor = (ECardColor) color,
                         CardValue = ECardValue.Blank,
-                    });
+                    };
+                    State.DeckOfPlayedCards.Add(State.TempCard);
+                    player.CanPlay = false;
+                    player.CanDraw = false;
+                    player.CanEnd = true;
+                    
+                    Console.WriteLine($"{player.NickName} played a {card}");
+                    Thread.Sleep(GameOptions.GameSpeed);
+                    return;
                 }
                 
-                else if (State.DeckOfPlayedCards.Last().CardColor == card.CardColor ||
-                    State.DeckOfPlayedCards.Last().CardValue == card.CardValue)
+                if (tablecard.CardColor == card.CardColor || tablecard.CardValue == card.CardValue)
                 {
                     if (card.CardValue == ECardValue.Draw2)
                     {
                         State.ToDraw += 2;
+                    }
+                    else if (card.CardValue == ECardValue.Skip)
+                    {
+                        State.SkipNext = true;
+                    }
+                    else if (card.CardValue == ECardValue.Reverse)
+                    {
+                        if (State.Players.Count == 2)
+                        {
+                            State.SkipNext = true;
+                        }
+                        else
+                        {
+                            State.Reversed = !State.Reversed;
+                        }
                     }
                     State.DeckOfPlayedCards.Add(card);
                     player.PlayerHand.Remove(card);
 
                     player.CanPlay = false;
                     player.CanDraw = false;
+                    player.CanEnd = true;
                     
-                    return "";
+                    Console.WriteLine($"{player.NickName} played a {card}");
+                    Thread.Sleep(GameOptions.GameSpeed);
+                    return;
                 }
-                else
-                {
-                    Console.WriteLine($"You cannot play {card}.");
-                    Thread.Sleep(2000);
-                    player.CanPlay = true;
-                }
+
+                Console.WriteLine($"You cannot play {card}.");
+                Thread.Sleep(GameOptions.GameSpeed);
+                player.CanPlay = true;
             }  
         } else {
             Console.WriteLine("No cards to play");
-            Thread.Sleep(2000);
-            player.CanPlay = true;
+            Thread.Sleep(GameOptions.GameSpeed);
+            player.CanPlay = false;
         }
-        return "";
     }
 
-    public int CountByType(EPlayerType pType)
+    public string? SaveTheGame()
     {
-        return State.Players.Count(player => pType == player.PlayerType);
+        var savemenu = new Menu("Would you like to save the current game state?", EMenuLevel.Turn, new List<MenuItem>()
+        {
+            new MenuItem()
+            {
+                MenuLabel = "Yes",
+                ItemNr = "1",
+            },
+            new MenuItem()
+            {
+                MenuLabel = "No",
+                ItemNr = "0",
+            }
+        });
+
+        return savemenu.Run();
     }
 }

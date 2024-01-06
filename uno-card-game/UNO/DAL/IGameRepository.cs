@@ -2,8 +2,12 @@
 
 namespace DAL;
 
-public interface IGameRepository<TKey>
+public interface IGameRepository
 {
-    TKey SaveGame(object? id, GameState game);
-    GameState LoadGame(TKey id);
+    void SaveGame(Guid id, GameState state);
+    void DeleteGame(Guid id, GameState state);
+    List<(Guid id, DateTime dt)> GetSaveGames();
+
+    GameState LoadGame(Guid id);
+
 }

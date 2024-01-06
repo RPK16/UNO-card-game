@@ -3,6 +3,7 @@
 public class GameCard
 {
     public ECardColor CardColor{ get; set; }
+    public ECardColor ChangedColor{ get; set; }
 
     private string CardColorToString() =>
         CardColor switch
@@ -30,12 +31,13 @@ public class GameCard
             ECardValue.Value7 => "Value 7",
             ECardValue.Value8 => "Value 8",
             ECardValue.Value9 => "Value 9",
-            ECardValue.Change => " Change",
+            ECardValue.Change => " Wild card",
             ECardValue.Draw2 => "Draw 2",
-            ECardValue.Draw4 => " Draw 4",
+            ECardValue.Draw4 => " Wild Draw 4",
             ECardValue.Reverse => "Reverse",
-            ECardValue.Blank => "B",
+            ECardValue.Blank => "Any value",
             ECardValue.Skip => "Skip",
+            _ => throw new ArgumentOutOfRangeException()
         };
     public override string ToString()
     {

@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnoConsoleUI", "UnoConsoleUI\UnoConsoleUI.csproj", "{F8D2345D-BBFC-4B9C-B8EE-3BD1C2E02376}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers", "Helpers\Helpers.csproj", "{74A4097F-8D90-45E7-B039-738DB79AD337}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,5 +51,9 @@ Global
 		{F8D2345D-BBFC-4B9C-B8EE-3BD1C2E02376}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8D2345D-BBFC-4B9C-B8EE-3BD1C2E02376}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8D2345D-BBFC-4B9C-B8EE-3BD1C2E02376}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74A4097F-8D90-45E7-B039-738DB79AD337}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74A4097F-8D90-45E7-B039-738DB79AD337}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74A4097F-8D90-45E7-B039-738DB79AD337}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74A4097F-8D90-45E7-B039-738DB79AD337}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

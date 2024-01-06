@@ -5,7 +5,9 @@ public enum EPlayerDecision
     NoneYet,
     Play,
     Draw,
-    ShoutUNO,
+    ShoutUno,
+    Catch,
     EndTurn,
+    Exit,
     // Surrender,
 }

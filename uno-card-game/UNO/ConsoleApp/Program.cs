@@ -1,100 +1,79 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Text;
+﻿using System.Text;
+using ConsoleApp;
 using DAL;
 using Domain;
 using UnoEngine;
-using MenuSystem;
+using Microsoft.EntityFrameworkCore;
 using UnoConsoleUI;
-
-var gameRepository = new GameRepositoryFileSystem();
-var game = new UnoGameEngine<string>(gameRepository);
-var gameController = new GameController<string>(game);
 Console.OutputEncoding = Encoding.UTF8;
 
+var gameOptions = new GameOptions();
+var connectionString = "DataSource=<%temppath%>uno.db;Cache=Shared";
+connectionString = connectionString.Replace("<%temppath%>", Path.GetTempPath());
 
+var contextOptions = new DbContextOptionsBuilder<AppDbContext>()
+    .UseSqlite(connectionString)
+    .EnableDetailedErrors()
+    .EnableSensitiveDataLogging()
+    .Options;
+using var db = new AppDbContext(contextOptions);
 
-var newGameMenu = new Menu("New Game",EMenuLevel.Second, menuItems:new List<MenuItem>()
-{
-    new MenuItem()
-    {
-        MenuLabel = "Choose players (Humans:"+ game.CountByType(EPlayerType.Human) +", AIs:" +
-                    ""+ game.CountByType(EPlayerType.Ai) +")",
-         MenuLabelFunction = () => $"Choose players (Humans: {game.CountByType(EPlayerType.Human)}, AIs: {game.CountByType(EPlayerType.Ai)})",
-        MethodToRun = SetPlayers, 
-        
-    },
-    new MenuItem()
-    {
-        MenuLabel = "Start game",
-        MethodToRun = gameController.MainLoop,
-    },
-});
+db.Database.Migrate();
 
+//IGameRepository gameRepository = new GameRepositoryEF(db);
+// state saving functionality, can be either file system based or db based. uses the same interface for both
+IGameRepository gameRepository = new GameRepositoryFileSystem();
 
-var loadGameMenu = new Menu("Load Game",EMenuLevel.Second, menuItems:new List<MenuItem>()
-{
-    new MenuItem()
-    {
-        MenuLabel = "Item 1 load",
-    },
-    new MenuItem()
-    {
-        MenuLabel = "Item 2 load",
-    },
-});
+var mainMenu = ProgramMenus.GetMainMenu(
+    gameOptions: gameOptions,
+    optionsMenu: ProgramMenus.GetOptionsMenu(gameOptions),
+    newGameMethod: NewGame,
+    LoadGame
+);
 
-var mainMenu = new Menu("U N O",EMenuLevel.First, menuItems:new List<MenuItem>()
-{
-    new MenuItem()
-    {
-        MenuLabel = "New Game",
-        MethodToRun = newGameMenu.Run
-    },
-    new MenuItem()
-    {
-        MenuLabel = "Load game",
-        MethodToRun = loadGameMenu.Run
-    },
-});
-
-var userChoice = mainMenu.Run();
+mainMenu.Run();
 return;
 
-string? SetPlayers()
+string? NewGame()
 {
+    var gameEngine = new UnoGameEngine(gameOptions);
+    PlayerInitializer.ConfigurePlayers(gameEngine);
     
-    Console.WriteLine("Choose between 2 and 7 players");
+    gameEngine.InitializeFullDeck();
+    gameEngine.DealCards();
     
-    Console.Write("Humans: ");
-    var hCountStr = Console.ReadLine()?.Trim();
-    var hCount = int.Parse(hCountStr);
-    
-    Console.Write("AIs: ");
-    var aCountStr = Console.ReadLine()?.Trim();
-    var aCount = int.Parse(aCountStr);
-    
+    var gameController = new GameController(gameEngine, gameRepository);
 
-    List<Player> Players = new List<Player>();
-    for (int i = 0; i < (aCount + hCount) ; i++)
+    gameController.MainLoop();
+    return null;
+}
+
+string? LoadGame()
+{
+    var load = ProgramMenus.GetLoadMenu(gameRepository).Run();
+    if (load == "Back")
     {
-        var newPlayer = new Player()
-        {
-            Nickname = "Ai" + i,
-            PlayerType = EPlayerType.Ai,
-        };
-
-        if (i < hCount)
-        {
-            newPlayer = new Player()
-            {
-                Nickname = "Human" + i,
-                PlayerType = EPlayerType.Human,
-            };
-        }
-        
-        game.State.Players.Add(newPlayer);
+        return null;
     }
+    var delete = ProgramMenus.LoadDeleteMenu(gameRepository).Run();
 
-    return " ";
+    var saveGameList = gameRepository.GetSaveGames();
+    var gameId = saveGameList[int.Parse(load!)].id;
+    var gameState = gameRepository.LoadGame(gameId);
+
+    if (delete == "1")
+    {
+        gameRepository.DeleteGame(gameId, gameState);
+        return null;
+    }
+    
+    var gameEngine = new UnoGameEngine(gameOptions)
+    {
+        State = gameState
+    };
+    
+    var gameController = new GameController(gameEngine, gameRepository);
+    gameController.MainLoop();
+
+    return null;
 }

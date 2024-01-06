@@ -11,6 +11,7 @@ public class MenuItem
     
 
     public bool IsSelected { get; set; } = false;
+    public bool Delete { get; set; } = false;
     
     
     

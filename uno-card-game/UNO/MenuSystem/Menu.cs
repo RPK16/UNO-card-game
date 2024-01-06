@@ -99,7 +99,7 @@ public class Menu
         MenuItem? userChoice = null;
         Console.Clear();
         ConsoleKeyInfo key;
-        String[] PlayActions = { "Play card(s)", "Draw card(s)", "End turn", "Shout UNO"};
+        String[] playActions = { "Play card(s)", "Draw card(s)", "End turn", "Catch", "Shout UNO", "Exit game"};
 
         do
         {
@@ -118,7 +118,6 @@ public class Menu
                 case ConsoleKey.UpArrow:
                     Option = (Option - 1 + MenuItems.Count) % (MenuItems.Count);
                     break;
-
                 case ConsoleKey.Enter:
 
                     foreach (var item in MenuItems)
@@ -141,7 +140,7 @@ public class Menu
                     } else if (userChoice?.MenuLabel == "Exit")
                     {
                         Environment.Exit(0);
-                    } else if (PlayActions.Contains(userChoice?.MenuLabel))
+                    } else if (playActions.Contains(userChoice?.MenuLabel))
                     {
                         closeMenu = Back();
                         Console.Clear();

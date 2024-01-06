@@ -1,24 +1,67 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Text.Json;
 using Domain;
+using Helpers;
 
 namespace DAL;
 
-public class GameRepositoryFileSystem : IGameRepository<string>
+public class GameRepositoryFileSystem : IGameRepository
 {
-    private readonly string _filePrefix = "." + System.IO.Path.PathSeparator;
-    
-    public string SaveGame(object? id, GameState game)
-    {
-        var filename =(string?) id ?? "uno-" + DateTime.Now.ToString() + ".json";
-        System.IO.File.WriteAllText(filename, JsonSerializer.Serialize(game));
+    private const string SaveLocation = "/Users/admin/uno_games";
+    //private static readonly string SaveLocation = Path.GetTempPath();
 
-        return filename;
+
+    public void SaveGame(Guid id, GameState state)
+    {
+        var content = JsonSerializer.Serialize(state, JsonHelpers.JsonSerializerOptions);
+        
+        var fileName = Path.ChangeExtension(id.ToString(), ".json");
+
+        if (!Path.Exists(SaveLocation))
+        {
+            Directory.CreateDirectory(SaveLocation);
+        }
+
+        File.WriteAllText(Path.Combine(SaveLocation, fileName), content);
     }
 
-    public GameState LoadGame(string id)
+    public List<(Guid id, DateTime dt)> GetSaveGames()
     {
-        return JsonSerializer.Deserialize<GameState>(
-            System.IO.File.ReadAllText(_filePrefix + id)
-            )!;
+        var data = Directory.EnumerateFiles(SaveLocation);
+        var res = data
+            .Select(
+                path => (
+                    Guid.Parse(Path.GetFileNameWithoutExtension(path)),
+                    File.GetLastWriteTime(path)
+                )
+            ).ToList();
+        
+        return res;
+
+    }
+
+    public void DeleteGame(Guid id, GameState state)
+    {
+        var content = JsonSerializer.Serialize(state, JsonHelpers.JsonSerializerOptions);
+        
+        var fileName = Path.ChangeExtension(id.ToString(), ".json");
+
+        if (Path.Exists(SaveLocation))
+        {
+            File.Delete(Path.Combine(SaveLocation, fileName));
+        }
+    }
+
+    public GameState LoadGame(Guid id)
+    {
+        var fileName = Path.ChangeExtension(id.ToString(), ".json");
+
+        var jsonStr = File.ReadAllText(Path.Combine(SaveLocation, fileName));
+        var res = JsonSerializer.Deserialize<GameState>(jsonStr, JsonHelpers.JsonSerializerOptions);
+        if (res == null) throw new SerializationException($"Cannot deserialize {jsonStr}");
+
+        return res;
+
     }
 }
