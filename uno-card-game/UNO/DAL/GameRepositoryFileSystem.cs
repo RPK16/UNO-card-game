@@ -8,26 +8,27 @@ namespace DAL;
 
 public class GameRepositoryFileSystem : IGameRepository
 {
-    private const string SaveLocation = "/Users/admin/uno_games";
-    //private static readonly string SaveLocation = Path.GetTempPath();
-
+    private static readonly string SaveLocation = 
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "uno_games");
 
     public void SaveGame(Guid id, GameState state)
     {
         var content = JsonSerializer.Serialize(state, JsonHelpers.JsonSerializerOptions);
-        
         var fileName = Path.ChangeExtension(id.ToString(), ".json");
 
-        if (!Path.Exists(SaveLocation))
+        if (!Directory.Exists(SaveLocation))
         {
             Directory.CreateDirectory(SaveLocation);
         }
-
         File.WriteAllText(Path.Combine(SaveLocation, fileName), content);
     }
-
+    
     public List<(Guid id, DateTime dt)> GetSaveGames()
     {
+        if (!Directory.Exists(SaveLocation))
+        {
+            Directory.CreateDirectory(SaveLocation);
+        }
         var data = Directory.EnumerateFiles(SaveLocation);
         var res = data
             .Select(

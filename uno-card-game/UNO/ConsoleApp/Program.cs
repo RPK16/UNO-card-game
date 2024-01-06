@@ -20,9 +20,9 @@ using var db = new AppDbContext(contextOptions);
 
 db.Database.Migrate();
 
-//IGameRepository gameRepository = new GameRepositoryEF(db);
+IGameRepository gameRepository = new GameRepositoryEF(db);
 // state saving functionality, can be either file system based or db based. uses the same interface for both
-IGameRepository gameRepository = new GameRepositoryFileSystem();
+//IGameRepository gameRepository = new GameRepositoryFileSystem();
 
 var mainMenu = ProgramMenus.GetMainMenu(
     gameOptions: gameOptions,
