@@ -6,7 +6,7 @@ namespace UnoEngine;
 public class UnoGameEngine
 {
     public GameState State { get; set; } = new GameState();
-    public readonly GameOptions GameOptions;
+    public GameOptions GameOptions;
     private Random Rnd { get; set; } = new Random();
 
     private readonly Menu? _colorMenu  = new Menu("Choose color", EMenuLevel.Turn, ChangeColor());
@@ -186,7 +186,7 @@ public class UnoGameEngine
             Console.WriteLine("Couldn't draw a card.");
             Thread.Sleep(GameOptions.GameSpeed); 
         }
-        return "";
+        return "draw";
     }
 
     public string Uno(Player player)
@@ -264,10 +264,6 @@ public class UnoGameEngine
         
         Console.WriteLine(nextplayer.NickName + "'s turn.");
         Thread.Sleep(GameOptions.GameSpeed);
-        if (nextplayer.PlayerType == EPlayerType.Ai) return "";
-        Console.Write("Make sure you are alone looking at screen! Press enter to continue...");
-        Console.ReadLine();
-        Console.Clear();
 
         return "";
     }
@@ -416,7 +412,7 @@ public class UnoGameEngine
         return "";
     }
     
-    public void PlayACard(Player player, string? cardnrstring)
+    public void PlayACard(Player player, string? cardnrstring,string? colorstring = null)
     {
         var tablecard = State.DeckOfPlayedCards.Last();
         
@@ -445,10 +441,14 @@ public class UnoGameEngine
                     }
 
                     var color = Rnd.Next(0, 4);
+                    
                     if (player.PlayerType != EPlayerType.Ai)
                     {
-                        var colorstring = _colorMenu?.Run();
-                         color = int.Parse(colorstring);
+                        if (colorstring == null)
+                        {
+                            colorstring = _colorMenu?.Run();
+                        }
+                        color = int.Parse(colorstring!);
                     }
                     
                     State.DeckOfPlayedCards.Add(card);
@@ -511,6 +511,11 @@ public class UnoGameEngine
             Thread.Sleep(GameOptions.GameSpeed);
             player.CanPlay = false;
         }
+    }
+    
+    public Player GetActivePlayer()
+    {
+        return State.Players[State.ActivePlayerNr];
     }
 
     public string? SaveTheGame()

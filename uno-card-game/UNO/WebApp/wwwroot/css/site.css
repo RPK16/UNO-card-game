@@ -1,0 +1,163 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  color: #ffc107;
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #06357a;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  width: 100%;
+  background-color: lightskyblue;
+}
+
+
+.info-table {
+  border: solid transparent;
+  border-radius: 16px;
+  background: #85c1ffcf;
+  font-family: din-round,sans-serif;
+  padding: 2rem !important;
+  box-shadow: 0.4rem 0.4rem 0 #7693b3;
+}
+.game-table {
+  background-color: forestgreen;
+  width: auto;
+  border-radius: 10px;
+  text-align: center;
+  border: #664d03;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.game-container {
+  background-color: #ffc107;
+  border-radius: 10px;
+  text-align: center;
+  border: #664d03;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  width: 80px;
+  height: 120px;
+  background-color: darkblue;
+  border-radius: 10px;
+  margin: 5px;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+.card span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 18px;
+}
+
+.current-player-hand {
+  display: flex;
+  color: #000;
+  border: 2rem;
+  justify-content: center;
+  margin-top: 20px;
+}
+.player-hand {
+  display: inline-block;
+  color: #000;
+  border: 2rem;
+  margin-top: 20px;
+}
+.table-hand {
+  display: flex;
+  color: #000;
+  border: 2rem;
+  justify-content: center;
+  margin-top: 20px;
+}
+.player-actions{
+  justify-content: center;
+  align-items: center;
+  border: 2rem;
+  color: #f5c2c7;
+  display: flex;
+  
+}
+.action-active{
+  width: 120px;
+  height: 40px;
+  text-align: center;
+  background-color: #43e70c;
+  border-radius: 10px;
+  margin: 35px;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-deactivated{
+  width: 80px;
+  height: 120px;
+  background-color: #d30836;
+  border-radius: 10px;
+  margin: 5px;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cookiesContent {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fff;
+  color: #000;
+  text-align: center;
+  border-radius: 20px;
+  padding: 30px 30px 70px;
+}
+button.close {
+    width: 30px;
+    font-size: 20px;
+    color: #c0c5cb;
+    align-self: flex-end;
+    background-color: transparent;
+    border: none;
+    margin-bottom: 10px;
+  }
+  button.accept {
+    background-color: #ed6755;
+    border: none;
+    border-radius: 5px;
+    width: 200px;
+    padding: 14px;
+    font-size: 16px;
+    color: white;
+    box-shadow: 0px 6px 18px -5px rgba(237, 103, 85, 1);
+  }
+  .popup{
+    display: none;
+    align-items: center;
+    z-index: 1000;
+    position: absolute;
+  }
+

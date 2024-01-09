@@ -41,11 +41,18 @@ public class GameController
                 _gameEngine.State.DeckOfPlayedCards.Remove(_gameEngine.State.DeckOfPlayedCards.Last());
                 _gameEngine.ShuffleTheDeck(_gameEngine.State.DeckOfPlayedCards);
             }
+            
+            save = false;
+            var currentPlayer = _gameEngine.GetActivePlayer();
+            if (currentPlayer.PlayerType != EPlayerType.Ai)
+            {
+                Console.Write($"{currentPlayer.NickName}, make sure you are alone looking at screen! Press enter to continue...");
+                Console.ReadLine();
+                Console.Clear();
+            }
 
             if (_gameEngine.State.TurnState == ETurnState.Ongoing)
             {
-                save = false;
-                var currentPlayer = _gameEngine.State.Players[_gameEngine.State.ActivePlayerNr];
 
                 if (_gameEngine.State.PlayerDecision != EPlayerDecision.NoneYet) continue;
                 if (currentPlayer.DrawDebt != 0)
@@ -79,6 +86,7 @@ public class GameController
                         
                         string? cardnr;
                         cardnr = currentPlayer.PlayerType != EPlayerType.Ai ? playmenu.Run() : _gameEngine.AiCard(currentPlayer);
+                        
                         _gameEngine.PlayACard(currentPlayer, cardnr);
                         
                         if (currentPlayer.PlayerHand.Count == 0)

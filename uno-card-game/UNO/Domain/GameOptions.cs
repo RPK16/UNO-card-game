@@ -12,4 +12,5 @@ public class GameOptions
     {
         return AutoSave ? "On" : "Off";
     }
+    
 }

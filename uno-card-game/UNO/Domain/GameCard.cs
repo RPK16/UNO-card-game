@@ -3,8 +3,6 @@
 public class GameCard
 {
     public ECardColor CardColor{ get; set; }
-    public ECardColor ChangedColor{ get; set; }
-
     private string CardColorToString() =>
         CardColor switch
         {

@@ -13,7 +13,6 @@ public class GameState
     public int ToDraw { get; set; } = 0;
     public bool Reversed { get; set; } = false;
     public bool SkipNext { get; set; } = false;
-
     public EPlayerDecision PlayerDecision { get; set; } = EPlayerDecision.NoneYet;
     public int ActivePlayerNr { get; set; } = 0; 
     
