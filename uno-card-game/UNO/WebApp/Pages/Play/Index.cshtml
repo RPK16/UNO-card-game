@@ -13,18 +13,22 @@
     @{
         ViewData["Title"] = "Uno";
         var pageplayer = Model.Engine.State.Players.Find(i => i.Id == Model.PlayerId);
-        var chosencard = 0;
     }
 
     <h1>Playing as @pageplayer?.NickName</h1>
 
 <div class="info-table">
     @if (Model.Engine.State.Winner != null)
-    {
-        <div class="modal">
-            <p class="message">Game winner: @(Model.Engine.State.Winner)!</p>
-            <div class="options">
-                <button class="btn" onclick="window.location = '../Index'">Back to menu!</button>
+    {<script>
+        showWinnerPopup('@Model.Engine.State.Winner.NickName');
+    </script>
+                                                            
+        <div id="winner-popup" class="popup">
+            <div class="content">
+                <p class="message">Game winner: <span id="winner-name"></span>!</p>
+                <div class="options">
+                    <button class="btn" onclick="returnToMenu()">Back to menu!</button>
+                </div>
             </div>
         </div>
     }
@@ -40,10 +44,6 @@
         else
         {
             <h4>Make your move!</h4>
-            if (pageplayer!.CanPlay)
-            {
-                <h4> can play</h4>
-            }
         }
     }
     
@@ -58,81 +58,78 @@
     </div>
 </div>
 
-
-<form method="post">
-    <input type="hidden" name="GameId" value="@Model.GameId" />
-    <input type="hidden" name="PlayerId" value="@Model.PlayerId" />
-    <div class="game-table">
-        <div class="game-container">
-            @foreach (var player in Model.Engine.State.Players)
-            {
+<div class="game">
+    <form method="post">
+        <input type="hidden" name="GameId" value="@Model.GameId" />
+        <input type="hidden" name="PlayerId" value="@Model.PlayerId" />
+        <div class="game-table">
+            <div class="game-container">
+                @foreach (var player in Model.Engine.State.Players)
+                {
+                    
+                    if (player != pageplayer)
+                    {
+                        <div class="player-hand">
+                            <button class="action-neutral" type="submit" name="catch" value="@Model.Engine.State.Players.IndexOf(player)">Catch player</button>
+                            <h6>@player.NickName</h6>
+                            <div class="card"><span>@player.PlayerHand.Count</span></div>
+                        </div>
+                    }
+                }
                 
-                if (player != pageplayer)
-                {
-                    <div class="player-hand">
-                        <button class="@GetButtonStatus("Catch")" type="submit" name="catch" value="@Model.Engine.State.Players.IndexOf(player)">Catch player</button>
-                        <h6>@player.NickName</h6>
-                        <div class="card"><span>@player.PlayerHand.Count</span></div>
-                    </div>
-                }
-            }
-            
-            <div class="table-hand">
-                <div class="card"><span>@Model.Engine.State.DeckOfPlayedCards.Last().ToString()</span></div>
-                <button class="card" type="submit" name="action" value="draw"><span>Deck (click to draw)</span></button>
-            </div>
+                <div class="table-hand">
+                    <div class="card"><span>@Model.Engine.State.DeckOfPlayedCards.Last().ToString()</span></div>
+                    <button class="card" type="submit" name="action" value="draw"><span>Deck (click to draw)</span></button>
+                </div>
 
-            @if (Model.Engine.GetActivePlayer().Id == Model.PlayerId)
-            {
-                if (Model.Engine.GetActivePlayer().DrawDebt > 0)
+                @if (Model.Engine.GetActivePlayer().Id == Model.PlayerId)
                 {
-                    Model.Engine.DrawACard(Model.Engine.GetActivePlayer(), Model.Engine.GetActivePlayer().DrawDebt);
-                }
-                <h4>@(Model.Engine.GetActivePlayer().NickName)'s hand</h4>
-                @foreach (var card in Model.Engine.GetActivePlayer().PlayerHand)
-                {
-                    if (card.CardColor == ECardColor.Black)
+                    if (Model.Engine.GetActivePlayer().DrawDebt > 0)
                     {
+                        Model.Engine.DrawACard(Model.Engine.GetActivePlayer(), Model.Engine.GetActivePlayer().DrawDebt);
+                    }
+                    <h4>@(Model.Engine.GetActivePlayer().NickName)'s hand</h4>
+                    @foreach (var card in Model.Engine.GetActivePlayer().PlayerHand)
+                    {
+                        if (card.CardColor == ECardColor.Black)
                         {
-                            chosencard = Model.Engine.GetActivePlayer().PlayerHand.IndexOf(card);
+                            <button class="card can-be-disabled" type="button" onclick="showDiv(@Model.Engine.GetActivePlayer().PlayerHand.IndexOf(card))">
+                                <span>@card.ToString()</span>
+                            </button> 
                         }
-
-                        <button class="card" type="button" onclick="showDiv(@Model.Engine.GetActivePlayer().PlayerHand.IndexOf(card))">
-                            <span>@card.ToString()</span>
-                            <span>@card.ToString()</span>
-                        </button> 
-                    }
-                    else
-                    {
-                        <button class="card" type="submit" name="CardNr" value="@Model.Engine.GetActivePlayer().PlayerHand.IndexOf(card)">
-                            <span>@card.ToString()</span>
-                        </button>
+                        else
+                        {
+                            <button class="card can-be-disabled" type="submit" name="CardNr" value="@Model.Engine.GetActivePlayer().PlayerHand.IndexOf(card)">
+                                <span>@card.ToString()</span>
+                            </button>
+                        }
                     }
                 }
-            }
-            
+                
+            </div>
+        </div>
+        
+        <div class="player-actions">
+            <button class="@GetButtonStatus("End turn")" type="submit" name="action" value="end">End Turn</button>
+            <button class="@GetButtonStatus("Uno")" type="submit" name="action" value="uno">Shout Uno</button>
+        </div>
+    </form>
+
+
+    <div class="popup" id="popup">
+        <div class="content" id="Popup">
+            <form method="post">
+                <input type="hidden" name="GameId" value="@Model.GameId" />
+                <input type="hidden" name="PlayerId" value="@Model.PlayerId" />
+                
+                <button class="card" id="color0" style="background-color: yellow" type="submit" name="CardNr" value=""></button>
+                <button class="card" id="color1" style="background-color: blue" type="submit" name="CardNr" value=""></button>
+                <button class="card" id="color2" style="background-color: red" type="submit" name="CardNr" value=""></button>
+                <button class="card" id="color3" style="background-color: green" type="submit" name="CardNr" value=""></button>
+            </form>
         </div>
     </div>
-    
-    <div class="player-actions">
-        <button class="@GetButtonStatus("End turn")" type="submit" name="action" value="end">End Turn</button>
-        <button class="@GetButtonStatus("Uno")" type="submit" name="action" value="uno">Shout Uno</button>
-    </div>
-</form>
 
-
-<div class="popup" id="popup">
-    <div class="content" id="Popup">
-        <form method="post">
-            <input type="hidden" name="GameId" value="@Model.GameId" />
-            <input type="hidden" name="PlayerId" value="@Model.PlayerId" />
-            
-            <button class="card" id="color0" style="background-color: yellow" type="submit" name="CardNr" value=""></button>
-            <button class="card" id="color1" style="background-color: blue" type="submit" name="CardNr" value=""></button>
-            <button class="card" id="color2" style="background-color: red" type="submit" name="CardNr" value=""></button>
-            <button class="card" id="color3" style="background-color: green" type="submit" name="CardNr" value=""></button>
-        </form>
-    </div>
 </div>
 
 <script>
@@ -142,6 +139,9 @@ function showDiv(nr) {
   document.getElementById("color1").value = "1-" + nr;
   document.getElementById("color2").value = "2-" + nr;
   document.getElementById("color3").value = "3-" + nr;
+  
+  var buttons = document.querySelectorAll('.can-be-disabled');
+  buttons.forEach(function (button) { button.disabled = true; });
 }
 
 let timerValue = 5;
@@ -155,6 +155,20 @@ setInterval(() => {
         }
 }, 1000);
 
+function showWinnerPopup(winnerName) {
+        document.getElementById("winner-name").innerText = winnerName;
+        document.getElementById("winner-popup").style.display = "block";
+    }
+
+    // JavaScript function to hide the winner popup
+    function hideWinnerPopup() {
+        document.getElementById("winner-popup").style.display = "none";
+    }
+
+    // JavaScript function to navigate back to the menu
+    function returnToMenu() {
+        window.location = '../Index';
+    }
  
 </script>
 @functions
@@ -179,12 +193,6 @@ setInterval(() => {
             }
             return "action-active";
         }
-        if (action == "Catch")
-        {
-            
-            return "action-active";
-        }
-        
         return "";
     }
     

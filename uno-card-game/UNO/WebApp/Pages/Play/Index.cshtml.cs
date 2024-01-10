@@ -138,16 +138,19 @@ public class Index : PageModel
             
             if (!string.IsNullOrWhiteSpace(Request.Form["catch"]))
             {
-                Engine.CatchPlayer(Request.Form["catch"]);
-                logentry = $"{Engine.GetActivePlayer().NickName} caught {Engine.State.Players[int.Parse(Request.Form["catch"]!)]}.";
+                var catchplayer = Engine.State.Players[int.Parse(Request.Form["catch"]!)];
+                if (catchplayer.PlayerHand.Count == 1 && !catchplayer.Uno)
+                {
+                    Engine.CatchPlayer(Request.Form["catch"]);
+                    logentry = $"{Engine.GetActivePlayer().NickName} caught {catchplayer.NickName}. {catchplayer.NickName} must draw 4 cards.";
+                    Engine.DrawACard(catchplayer, catchplayer.DrawDebt);
+                }
             }
 
             if (!logentry.IsNullOrEmpty())
             {
                 AddToActionLog(logentry);
             }
-
-            logentry = "";
             if (Engine.GetActivePlayer().PlayerHand.Count == 0)
             {
                 Engine.State.Winner = Engine.GetActivePlayer();

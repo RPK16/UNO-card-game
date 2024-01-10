@@ -176,7 +176,7 @@ public class UnoGameEngine
 
             if (amount == 1)
             {
-                if (drawnCard.CardValue == State.DeckOfPlayedCards.Last().CardValue || drawnCard.CardColor == State.DeckOfPlayedCards.Last().CardColor)
+                if (GameOptions.AllowPlayAfterDraw)
                 {
                     player.CanPlay = true;
                 }

@@ -82,7 +82,7 @@ body {
   display: inline-block;
   color: #000;
   border: 2rem;
-  margin-top: 20px;
+  margin: 20px;
 }
 .table-hand {
   display: flex;
@@ -112,6 +112,19 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.action-neutral{
+  width: 120px;
+  height: 40px;
+  text-align: center;
+  background-color: #f5dd47;
+  border-radius: 10px;
+  #margin: 35px;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .action-deactivated{
   width: 120px;
   height: 40px;
@@ -124,7 +137,7 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.Content {
+.popup {
   width: 320px;
   display: flex;
   flex-direction: column;
@@ -167,4 +180,9 @@ button.close {
     padding-left: 14px;
     color: red;
   }
-
+  
+  .game {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }

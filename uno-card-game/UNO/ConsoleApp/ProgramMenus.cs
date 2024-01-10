@@ -18,6 +18,11 @@ public static class ProgramMenus
             },
             new MenuItem()
             {
+                MenuLabelFunction = () => "Allow play after draw - " + gameOptions.Allowplayonoff(),
+                MethodToRun = () => OptionsChanger.ConfigureDraw(gameOptions)
+            },
+            new MenuItem()
+            {
                 MenuLabelFunction = () => "Game speed - " + (gameOptions.GameSpeed) + " ms",
                 MethodToRun = () => OptionsChanger.ConfigureGameSpeed(gameOptions)
             },

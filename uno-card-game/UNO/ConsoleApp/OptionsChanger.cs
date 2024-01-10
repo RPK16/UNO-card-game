@@ -33,6 +33,13 @@ public static class OptionsChanger
         return null;
     }
 
+    public static string? ConfigureDraw(GameOptions gameOptions)
+    {
+        Console.WriteLine("Allow or forbid playing a card after drawing from the deck.");
+        gameOptions.AllowPlayAfterDraw = !gameOptions.AllowPlayAfterDraw;
+        return null;
+    }
+
     public static string? ConfigureAISpeed(GameOptions gameOptions)
     {
         Console.WriteLine("Change the AI speed (How long does AI take to make a decision)");

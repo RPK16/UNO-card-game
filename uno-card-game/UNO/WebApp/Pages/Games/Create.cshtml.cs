@@ -47,6 +47,9 @@ namespace WebApp.Pages.Games
         [Range(0, 9000, ErrorMessage = "The game speed can be between 0 and 9000 ms.")]
         public int Gamespeed { get; set; } = 1000;
         
+        [BindProperty]
+        public bool Allowplay { get; set; } = false;
+        
         public void OnGet()
         {
         }
@@ -60,6 +63,7 @@ namespace WebApp.Pages.Games
 
             GameOptions.GameSpeed = Gamespeed;
             GameOptions.AiSpeed = AiSpeed;
+            GameOptions.AllowPlayAfterDraw = Allowplay;
         
             Engine = new UnoGameEngine(GameOptions);
             PlayerInitializer.ConfigurePlayers(Engine, Humans, Ais);

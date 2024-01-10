@@ -27,6 +27,12 @@
             </div>
             
             <div class="form-group">
+                <label asp-for="Allowplay" class="control-label">Allow playing after drawing:</label>
+                <input asp-for="Allowplay" id="Allowplay" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Allowplay" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
                 <label asp-for="Gamespeed" class="control-label">Gamespeed in ms:</label>
                 <input asp-for="Gamespeed" id="Gamespeed" class="form-control" />
                 <span asp-validation-for="Gamespeed" class="text-danger"></span>
