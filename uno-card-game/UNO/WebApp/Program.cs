@@ -14,6 +14,7 @@ connectionString = connectionString.Replace("<%temppath%>", Path.GetTempPath());
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddSingleton<List<string>>();
 
 //builder.Services.AddScoped<IGameRepository, GameRepositoryFileSystem>();
 builder.Services.AddScoped<IGameRepository, GameRepositoryEF>();

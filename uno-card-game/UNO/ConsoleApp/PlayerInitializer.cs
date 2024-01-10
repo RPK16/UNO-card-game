@@ -5,24 +5,28 @@ namespace ConsoleApp;
 
 public static class PlayerInitializer
 {
-    public static void ConfigurePlayers(UnoGameEngine gameEngine)
+    public static void ConfigurePlayers(UnoGameEngine gameEngine, int hCount = 0, int aCount = 0)
     {
-        Console.WriteLine("Choose between 2 and 10 players");
-    
-        Console.Write("Humans: ");
-        var hCountStr = Console.ReadLine()?.Trim() ?? "0";
-        if (string.IsNullOrEmpty(hCountStr) || !int.TryParse(hCountStr, out var hCount))
+        if (aCount == 0 && hCount ==0)
         {
-            hCount = 0;
-        }
+            Console.WriteLine("Choose between 2 and 10 players");
     
-        Console.Write("AIs: ");
-        var aCountStr = Console.ReadLine()?.Trim() ?? "0";
-        if (string.IsNullOrEmpty(aCountStr) || !int.TryParse(aCountStr, out var aCount))
-        {
-            aCount = 0;
-        }
+            Console.Write("Humans: ");
+            var hCountStr = Console.ReadLine()?.Trim() ?? "0";
+            if (string.IsNullOrEmpty(hCountStr) || !int.TryParse(hCountStr, out  hCount))
+            {
+                hCount = 0;
+            }
+    
+            Console.Write("AIs: ");
+            var aCountStr = Console.ReadLine()?.Trim() ?? "0";
+            if (string.IsNullOrEmpty(aCountStr) || !int.TryParse(aCountStr, out  aCount))
+            {
+                aCount = 0;
+            }
 
+        }
+        
         switch (aCount + hCount)
         {
             case > 10:

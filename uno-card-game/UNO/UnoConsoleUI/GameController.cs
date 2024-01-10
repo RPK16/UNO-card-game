@@ -19,6 +19,7 @@ public class GameController
     {
         var save = _gameEngine.GameOptions.AutoSave;
         var exit = false;
+        var shown = false;
         Console.Clear();
         
         while (!_gameEngine.IsGameOver())
@@ -44,11 +45,12 @@ public class GameController
             
             save = false;
             var currentPlayer = _gameEngine.GetActivePlayer();
-            if (currentPlayer.PlayerType != EPlayerType.Ai)
+            if (currentPlayer.PlayerType != EPlayerType.Ai && !shown)
             {
                 Console.Write($"{currentPlayer.NickName}, make sure you are alone looking at screen! Press enter to continue...");
                 Console.ReadLine();
                 Console.Clear();
+                shown = true;
             }
 
             if (_gameEngine.State.TurnState == ETurnState.Ongoing)
@@ -122,6 +124,7 @@ public class GameController
                         _gameEngine.Endturn();
                         _gameEngine.State.TurnState = ETurnState.Over;
                         _gameEngine.State.PlayerDecision = EPlayerDecision.NoneYet;
+                        shown = false;
                         break;
                     case EPlayerDecision.Exit:
                     {

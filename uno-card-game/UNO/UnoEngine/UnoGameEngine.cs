@@ -163,17 +163,23 @@ public class UnoGameEngine
     
     public string DrawACard(Player player, int amount = 1)
     { 
+        
         if (State.DeckOfCards.Count != 0)
         {
+            GameCard drawnCard = new GameCard();
             for (int cards = 1; cards <= amount; cards++)
             {
-                GameCard drawnCard = State.DeckOfCards.Last();
+                drawnCard = State.DeckOfCards.Last();
                 player.PlayerHand.Add(drawnCard);
                 State.DeckOfCards.Remove(drawnCard);
             }
 
             if (amount == 1)
             {
+                if (drawnCard.CardValue == State.DeckOfPlayedCards.Last().CardValue || drawnCard.CardColor == State.DeckOfPlayedCards.Last().CardColor)
+                {
+                    player.CanPlay = true;
+                }
                 player.CanEnd = true;
             }
             
@@ -204,7 +210,7 @@ public class UnoGameEngine
         return "";
     }
 
-    private Player GetNextPlayer()
+    public Player GetNextPlayer()
     {
         Player nextplayer;
         
@@ -268,7 +274,7 @@ public class UnoGameEngine
         return "";
     }
 
-    private void Reset(Player player)
+    public void Reset(Player player)
     {
         player.CanPlay = true;
         player.CanDraw = true;
@@ -505,6 +511,7 @@ public class UnoGameEngine
                 Console.WriteLine($"You cannot play {card}.");
                 Thread.Sleep(GameOptions.GameSpeed);
                 player.CanPlay = true;
+                return;
             }  
         } else {
             Console.WriteLine("No cards to play");
@@ -517,6 +524,38 @@ public class UnoGameEngine
     {
         return State.Players[State.ActivePlayerNr];
     }
+    
+    public Player nextPlayer()
+    {
+        Player nextplayer;
+        
+        var active = State.ActivePlayerNr;
+        
+        if (!State.Reversed)
+        {
+            if (State.ActivePlayerNr < State.Players.Count - 1)
+            {
+                nextplayer = State.Players[active + 1];
+            }
+            else
+            {
+                nextplayer = State.Players[0];
+            }
+        }
+        else
+        {
+            if (State.ActivePlayerNr > 0)
+            {
+                nextplayer = State.Players[active - 1];
+            }
+            else
+            {
+                nextplayer = State.Players.Last(); 
+            }
+        }
+        return nextplayer;
+    }
+
 
     public string? SaveTheGame()
     {

@@ -29,6 +29,8 @@ namespace WebApp.Pages.Options
         }
 
         public GameOptions GameOptions { get;set; } = default!;
+        
+        
 
         public async Task OnGetAsync()
         {

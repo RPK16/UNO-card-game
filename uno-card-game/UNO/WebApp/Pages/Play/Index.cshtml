@@ -7,27 +7,8 @@
 <head>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         <title>Uno</title>
-        <style>
-            /* Add your styles here */
-            .color-choices {
-                display: flex;
-                gap: 10px;
-                margin-top: 10px;
-            }
-    
-            .color-choice {
-                width: 30px;
-                height: 30px;
-                cursor: pointer;
-            }
-        </style>
-
 </head>
 <body>
-
-    <h1>Play</h1>
-
-    <h5>Reload page in <span id="reload-label">-</span></h5>
 
     @{
         ViewData["Title"] = "Uno";
@@ -36,10 +17,6 @@
     }
 
     <h1>Playing as @pageplayer?.NickName</h1>
-
-    <p>
-        <a asp-page="Create">Start new game</a>
-    </p>
 
 <div class="info-table">
     @if (Model.Engine.State.Winner != null)
@@ -51,19 +28,36 @@
             </div>
         </div>
     }
+    
     else
     {
         <h3>Active player: @(Model.Engine.GetActivePlayer().NickName)</h3>
         if (Model.Engine.GetActivePlayer().Id != Model.PlayerId)
         {
             <h4>Wait for your turn, @pageplayer?.NickName</h4>
+            <h4>Checking if its your turn in: <span id="reload-label">-</span></h4>                                              
         }
         else
         {
             <h4>Make your move!</h4>
+            if (pageplayer!.CanPlay)
+            {
+                <h4> can play</h4>
+            }
         }
     }
+    
+    <div class="action-log">
+        <h3>Action Log</h3>
+        <ul>
+            @foreach (var logEntry in Model.ActionLog)
+            {
+                <li>@logEntry</li>
+            }
+        </ul>
+    </div>
 </div>
+
 
 <form method="post">
     <input type="hidden" name="GameId" value="@Model.GameId" />
@@ -94,26 +88,32 @@
                         }
                     </div>
                 }
-                var playerLabel = player.NickName + "(" + player.PlayerType + ")";
-                //<a asp-page="/Play/Index" asp-route-GameId="@item.Id" asp-route-PlayerId="@player.Id">@playerLabel</a>
             }
+            @* last 2 cards in deck: @Model.Engine.State.DeckOfPlayedCards.Last().ToString() and @Model.Engine.State.DeckOfPlayedCards[^2].ToString() *@
             
             <div class="table-hand">
-                <!-- Sample player hand with cards -->
                 <div class="card"><span>@Model.Engine.State.DeckOfPlayedCards.Last().ToString()</span></div>
-                <button class="card" type="submit" name="action" value="draw"><span>Deck</span></button>
+                <button class="card" type="submit" name="action" value="draw"><span>Deck (click to draw)</span></button>
             </div>
 
             @if (Model.Engine.GetActivePlayer().Id == Model.PlayerId)
             {
+                if (Model.Engine.GetActivePlayer().DrawDebt > 0)
+                {
+                    Model.Engine.DrawACard(Model.Engine.GetActivePlayer(), Model.Engine.GetActivePlayer().DrawDebt);
+                }
                 <h4>@(Model.Engine.GetActivePlayer().NickName)'s hand</h4>
                 @foreach (var card in Model.Engine.GetActivePlayer().PlayerHand)
                 {
                     if (card.CardColor == ECardColor.Black)
                     {
-                        chosencard = Model.Engine.GetActivePlayer().PlayerHand.IndexOf(card);
-                        <button class="card" type="button" onclick="showDiv()">
-                        <span>@card.ToString()</span>
+                        {
+                            chosencard = Model.Engine.GetActivePlayer().PlayerHand.IndexOf(card);
+                        }
+
+                        <button class="card" type="button" onclick="showDiv(@Model.Engine.GetActivePlayer().PlayerHand.IndexOf(card))">
+                            <span>@card.ToString()</span>
+                            <span>@card.ToString()</span>
                         </button> 
                     }
                     else
@@ -127,39 +127,50 @@
             
         </div>
     </div>
+    
     <div class="player-actions">
         <button class="@GetButtonStatus("End turn")" type="submit" name="action" value="end">End Turn</button>
+        <button class="@GetButtonStatus("Uno")" type="submit" name="action" value="uno">Shout Uno</button>
+        <button class="@GetButtonStatus("Catch")" type="submit" name="action" value="catch">Shout Uno</button>
     </div>
 </form>
 
 
 <div class="popup" id="popup">
-    <div class="cookiesContent" id="cookiesPopup">
+    <div class="content" id="Popup">
         <form method="post">
             <input type="hidden" name="GameId" value="@Model.GameId" />
             <input type="hidden" name="PlayerId" value="@Model.PlayerId" />
             
-            <button class="card" style="background-color: yellow" type="submit" name="CardNr" value="0-@chosencard"></button>
-            <button class="card" style="background-color: blue" type="submit" name="CardNr" value="1-@chosencard"></button>
-            <button class="card" style="background-color: red" type="submit" name="CardNr" value="2-@chosencard"></button>
-            <button class="card" style="background-color: green" type="submit" name="CardNr" value="3-@chosencard"></button>
+            <button class="card" id="color0" style="background-color: yellow" type="submit" name="CardNr" value=""></button>
+            <button class="card" id="color1" style="background-color: blue" type="submit" name="CardNr" value=""></button>
+            <button class="card" id="color2" style="background-color: red" type="submit" name="CardNr" value=""></button>
+            <button class="card" id="color3" style="background-color: green" type="submit" name="CardNr" value=""></button>
         </form>
     </div>
 </div>
 
-<div>
-    <!-- Draw desk, Are we active - show controls -->
-    @Model.Engine.GetActivePlayer().Id
-    @Model.PlayerId
-</div>
-
-
 <script>
-
-function showDiv() {
+function showDiv(nr) {
   document.getElementById("popup").style.display = "block";
+  document.getElementById("color0").value = "0-" + nr;
+  document.getElementById("color1").value = "1-" + nr;
+  document.getElementById("color2").value = "2-" + nr;
+  document.getElementById("color3").value = "3-" + nr;
 }
 
+let timerValue = 5;
+let timerLabel = document.querySelector("#reload-label");
+
+setInterval(() => {
+    timerValue--;
+    timerLabel.innerHTML = timerValue.toString();
+    if (timerValue <= 0) {
+        window.location.replace(window.location.href);
+        }
+}, 1000);
+
+ 
 </script>
 @functions
 {
@@ -170,6 +181,14 @@ function showDiv() {
         if (action == "End turn")
         {
             if (!pageplayer!.CanEnd)
+            {
+                return "action-deactivated";
+            }
+            return "action-active";
+        }
+        if (action == "Uno")
+        {
+            if (pageplayer!.PlayerHand.Count != 1 || pageplayer!.Uno)
             {
                 return "action-deactivated";
             }
