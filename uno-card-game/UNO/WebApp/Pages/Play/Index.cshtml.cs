@@ -135,6 +135,12 @@ public class Index : PageModel
                 Engine.GetActivePlayer().Uno = true;
                 logentry = $"{Engine.GetActivePlayer().NickName} shouted UNO!.";
             }
+            
+            if (!string.IsNullOrWhiteSpace(Request.Form["catch"]))
+            {
+                Engine.CatchPlayer(Request.Form["catch"]);
+                logentry = $"{Engine.GetActivePlayer().NickName} caught {Engine.State.Players[int.Parse(Request.Form["catch"]!)]}.";
+            }
 
             if (!logentry.IsNullOrEmpty())
             {

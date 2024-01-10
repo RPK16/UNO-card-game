@@ -66,30 +66,16 @@
         <div class="game-container">
             @foreach (var player in Model.Engine.State.Players)
             {
+                
                 if (player != pageplayer)
                 {
-                    var counter = 0;
-                    @(player.NickName)
                     <div class="player-hand">
-                        @foreach (var card in player.PlayerHand)
-                        {
-                            if (player.PlayerHand.IndexOf(card) >= 7)
-                            {
-                                counter++;
-                            }
-                            else
-                            {
-                                <div class="card"><span>@card.ToString()</span></div>
-                            }
-                        }
-                        @if (counter != 0)
-                        {
-                            <div class="card"><span> +@counter</span></div>
-                        }
+                        <button class="@GetButtonStatus("Catch")" type="submit" name="catch" value="@Model.Engine.State.Players.IndexOf(player)">Catch player</button>
+                        <h6>@player.NickName</h6>
+                        <div class="card"><span>@player.PlayerHand.Count</span></div>
                     </div>
                 }
             }
-            @* last 2 cards in deck: @Model.Engine.State.DeckOfPlayedCards.Last().ToString() and @Model.Engine.State.DeckOfPlayedCards[^2].ToString() *@
             
             <div class="table-hand">
                 <div class="card"><span>@Model.Engine.State.DeckOfPlayedCards.Last().ToString()</span></div>
@@ -131,7 +117,6 @@
     <div class="player-actions">
         <button class="@GetButtonStatus("End turn")" type="submit" name="action" value="end">End Turn</button>
         <button class="@GetButtonStatus("Uno")" type="submit" name="action" value="uno">Shout Uno</button>
-        <button class="@GetButtonStatus("Catch")" type="submit" name="action" value="catch">Shout Uno</button>
     </div>
 </form>
 
@@ -194,6 +179,12 @@ setInterval(() => {
             }
             return "action-active";
         }
+        if (action == "Catch")
+        {
+            
+            return "action-active";
+        }
+        
         return "";
     }
     

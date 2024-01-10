@@ -336,7 +336,7 @@ public class UnoGameEngine
         return playersToCatch;
     }
 
-    public void CatchPlayer(Player player, string? playernrstring)
+    public void CatchPlayer(string? playernrstring)
     {
         if (playernrstring == "Back")
         {

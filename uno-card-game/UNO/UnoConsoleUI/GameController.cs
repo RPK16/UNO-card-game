@@ -115,7 +115,7 @@ public class GameController
                     case EPlayerDecision.Catch:
                     {
                         var catchmenu = new Menu("Catch a player", EMenuLevel.Turn, _gameEngine.CatchChoices());
-                        _gameEngine.CatchPlayer(currentPlayer, catchmenu.Run());
+                        _gameEngine.CatchPlayer( catchmenu.Run());
                         
                         _gameEngine.State.PlayerDecision = EPlayerDecision.NoneYet;
                         break;
