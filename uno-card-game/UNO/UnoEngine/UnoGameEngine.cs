@@ -12,10 +12,11 @@ public class UnoGameEngine
     private readonly Menu? _colorMenu  = new Menu("Choose color", EMenuLevel.Turn, ChangeColor());
 
     private const int InitialHandSize = 7;
-
+    
     public UnoGameEngine(GameOptions gameOptions)
     {
         GameOptions = gameOptions;
+        State.GameOptions = GameOptions;
     }
     
     public void InitializeFullDeck()
@@ -137,6 +138,7 @@ public class UnoGameEngine
         else
         {
             Decide(turnchoices[(Rnd.Next(turnchoices.Count))]);
+        
         }
     }
 
@@ -160,6 +162,10 @@ public class UnoGameEngine
         }
         return null;
     }
+    public bool AiDecide()
+    {
+        return (Rnd.Next(3) == 1);
+    }
     
     public string DrawACard(Player player, int amount = 1)
     { 
@@ -176,10 +182,9 @@ public class UnoGameEngine
 
             if (amount == 1)
             {
-                if (GameOptions.AllowPlayAfterDraw)
-                {
-                    player.CanPlay = true;
-                }
+                player.CanPlay = GameOptions!.AllowPlayAfterDraw;
+
+                player.CanDraw = false;
                 player.CanEnd = true;
             }
             
@@ -264,7 +269,11 @@ public class UnoGameEngine
             Thread.Sleep(GameOptions.GameSpeed); 
             nextplayer = GetNextPlayer();
         }
-        
+
+        if (currentplayer.PlayerHand.Count == 0)
+        {
+            State.Winner = currentplayer;
+        }
         Reset(currentplayer);
         State.PreviousPlayer = currentplayer;
         
@@ -415,7 +424,7 @@ public class UnoGameEngine
     private string Decide(EPlayerDecision decision)
     {
         State.PlayerDecision = decision;
-        return "";
+        return decision.ToString();
     }
     
     public void PlayACard(Player player, string? cardnrstring,string? colorstring = null)
@@ -430,6 +439,14 @@ public class UnoGameEngine
         if (cardnrstring == "Back")
         {
             return;
+        }
+
+        if (!player.CanDraw)
+        {
+            if (!GameOptions.AllowPlayAfterDraw)
+            {
+                return;
+            }
         }
         if (cardnrstring != null)
         {
@@ -505,6 +522,7 @@ public class UnoGameEngine
                     
                     Console.WriteLine($"{player.NickName} played a {card}");
                     Thread.Sleep(GameOptions.GameSpeed);
+                    Console.WriteLine(player.CanEnd.ToString());
                     return;
                 }
 
@@ -518,6 +536,11 @@ public class UnoGameEngine
             Thread.Sleep(GameOptions.GameSpeed);
             player.CanPlay = false;
         }
+    }
+    
+    public int Aicolor()
+    {
+       return Rnd.Next(0, 3);
     }
     
     public Player GetActivePlayer()

@@ -41,7 +41,7 @@ namespace WebApp.Pages.Games
       
         [BindProperty]
         [Range(0, 9000, ErrorMessage = "The Ai speed can be between 0 and 9000 ms.")]
-        public int AiSpeed { get; set; } = 0;
+        public int AiSpeed { get; set; } = 1000;
        
         [BindProperty]
         [Range(0, 9000, ErrorMessage = "The game speed can be between 0 and 9000 ms.")]

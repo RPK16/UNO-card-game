@@ -27,5 +27,14 @@
     <ItemGroup>
       <ProjectReference Include="..\DAL\DAL.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Pages\Players\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Players\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Players\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Players\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Players\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Options\Index.cshtml" />
+    </ItemGroup>
     
 </Project>

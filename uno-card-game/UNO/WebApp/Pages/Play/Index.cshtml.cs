@@ -3,6 +3,7 @@ using Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
+using Mono.TextTemplating;
 using UnoEngine;
 
 namespace WebApp.Pages.Play;
@@ -14,12 +15,10 @@ public class Index : PageModel
     private GameOptions gameOptions = new GameOptions();
     public UnoGameEngine Engine { get; set; } = default!;
     
-    public List<string> ActionLog { get; set; }
-    
-    public Index(AppDbContext context, List<string> actionLog)
+    public Index(AppDbContext context)
     {
         _context = context;
-        ActionLog = actionLog;
+        
         _gameRepository = new GameRepositoryEF(_context);
     }
 
@@ -34,28 +33,32 @@ public class Index : PageModel
     
     public void OnGet()
     {
-        ActionLog = ActionLog;
+        
         var gameState = _gameRepository.LoadGame(GameId);
-
+        gameOptions = gameState.GameOptions!;
+        
         Engine = new UnoGameEngine(gameOptions)
         {
             State = gameState
         };
+       
+      
     }
     private void AddToActionLog(string logentry)
-    {
-        ActionLog.Add(logentry);
+    { 
+        Engine.State.ActionLog.Add(logentry);
     
         // Keep only the last 5 actions
-        if (ActionLog.Count > 5)
+        if (Engine.State.ActionLog.Count > 5)
         {
-            ActionLog.RemoveAt(0);
+            Engine.State.ActionLog.RemoveAt(0);
         }
     }
 
     public void OnPost()
     {
         var gameState = _gameRepository.LoadGame(GameId);
+        gameOptions = gameState.GameOptions!;
 
         Engine = new UnoGameEngine(gameOptions)
         {
@@ -83,6 +86,7 @@ public class Index : PageModel
                     else
                     {
                         Engine.PlayACard(Engine.GetActivePlayer(), cardstr);
+                        Console.WriteLine(Engine.GetActivePlayer().CanEnd.ToString());
                         playedcard = Engine.State.DeckOfPlayedCards[^1];
                         logentry = $"{Engine.GetActivePlayer().NickName} played a {playedcard}.";
                     }
@@ -94,9 +98,11 @@ public class Index : PageModel
                     {
                         case ECardValue.Draw2:
                             logentry = $"{Engine.nextPlayer().NickName} has to draw 2 cards.";
+                            Engine.DrawACard(Engine.nextPlayer(), 2);
                             break;
                         case ECardValue.Draw4:
                             logentry = $"{Engine.nextPlayer().NickName} has to draw 4 cards.";
+                            Engine.DrawACard(Engine.nextPlayer(), 4);
                             break;
                         case ECardValue.Skip:
                         case ECardValue.Reverse when Engine.State.Players.Count == 2:
@@ -130,7 +136,7 @@ public class Index : PageModel
                 Engine.GetActivePlayer().Uno = false;
             }
 
-            if (Request.Form["action"] == "uno")
+            if (Request.Form["action"] == "uno" && !Engine.GetActivePlayer().Uno)
             {
                 Engine.GetActivePlayer().Uno = true;
                 logentry = $"{Engine.GetActivePlayer().NickName} shouted UNO!.";
